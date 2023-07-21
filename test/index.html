@@ -1,0 +1,63 @@
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script type="module" src="./tests.js"></script>
+  <style>
+    .error>div {
+      color: brown;
+      font-size: small;
+    }
+
+    .error>input {
+      border-color: brown;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div>
+    <input type="text" id="filter" />
+    <input type="button" value="filter" onclick="filter()" />
+  </div>
+
+  <table id="tbl"></table>
+  <div id="container"></div>
+
+  <div style="display: flex; flex-direction: row;">
+    <fieldset>
+      <legend>Original Form</legend>
+      <form novalidate>
+        <div>
+          <label for="name">Name</label>
+          <input type="text" name="name" id="name" />
+        </div>
+        <div>
+          <labe for="cpf">CPF</labe>
+          <input type="text" name="cpf" id="cpf">
+        </div>
+        <input type="button" value="submit" onclick="saveOriginal()" />
+      </form>
+    </fieldset>
+    <fieldset>
+      <legend>New Form</legend>
+      <form novalidate>
+        <div>
+          <label for="name">Name</label>
+          <input type="text" name="name" />
+        </div>
+        <div>
+          <labe for="cpf">CPF</labe>
+          <input type="text" name="cpf">
+        </div>
+        <input type="button" value="submit" onclick="saveNew()" />
+      </form>
+    </fieldset>
+  </div>
+
+</body>
+
+</html>

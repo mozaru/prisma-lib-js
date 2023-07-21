@@ -1,0 +1,24 @@
+{
+  "name": "prisma-js",
+  "version": "1.0.0",
+  "scripts": {
+    "serve": "http-server -c-1"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozaru/prisma-lib-js.git"
+  },
+  "keywords": [],
+  "author": "11Tech",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mozaru/prisma-lib-js/issues"
+  },
+  "homepage": "https://github.com/mozaru/prisma-lib-js#readme",
+  "description": ""
+}
