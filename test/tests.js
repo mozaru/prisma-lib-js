@@ -1,4 +1,7 @@
-import { PrismaForm as Form, PrismaTable as Table, PrismaHttp as Http, showMessage } from 'prisma-js';
+import Table from '../table';
+import Form from '../form';
+import Http from '../http';
+import { showMessage } from '../utils';
 
 let table = new Table(
   document.getElementById("tbl"),
@@ -82,7 +85,7 @@ function required(value) {
 }
 
 function cpf(value) {
-  return value == '117.379.757-26' ? null : 'Invalid CPF'
+  return value == '271.326.330-15' ? null : 'Invalid CPF'
 }
 
 const [_,f] = document.forms
@@ -92,7 +95,7 @@ const newForm = new Form(f, {
     validators: [required]
   },
   cpf: {
-    initialValue: '117.379.757-26',
+    initialValue: '271.326.330-15',
     validators: [required, cpf]
   }
 })
