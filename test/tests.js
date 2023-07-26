@@ -1,8 +1,4 @@
-import Table from '../table.js';
-import Form from '../form.js';
-import Http from '../http.js';
-
-import { showMessage } from '../utils.js';
+import { PrismaForm as Form, PrismaTable as Table, PrismaHttp as Http, showMessage } from 'prisma-js';
 
 let table = new Table(
   document.getElementById("tbl"),

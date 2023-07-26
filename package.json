@@ -1,13 +1,8 @@
 {
   "name": "prisma-js",
   "version": "1.0.0",
-  "scripts": {
-    "serve": "http-server -c-1"
-  },
+  "main": "index.js",
   "dependencies": {
-  },
-  "devDependencies": {
-    "http-server": "^14.1.1"
   },
   "repository": {
     "type": "git",
