@@ -1,4 +1,4 @@
-import { showMessage } from './utils.js'
+import { showMessage } from './index.js'
 
 export default class PrismaHttp {
   #baseUrl

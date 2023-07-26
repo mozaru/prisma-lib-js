@@ -1,7 +1,9 @@
 {
   "name": "prisma-js",
   "version": "1.0.0",
-  "dependencies": {
+  "exports": {
+    ".": "./src/index.js",
+    "./*": "./src/"
   },
   "repository": {
     "type": "git",

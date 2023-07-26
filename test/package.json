@@ -2,6 +2,9 @@
   "scripts": {
     "serve": "vite serve"
   },
+  "dependencies": {
+    "prisma-js": ".."
+  },
   "devDependencies": {
     "vite": "latest"
   }
