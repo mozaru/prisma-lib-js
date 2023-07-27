@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "exports": {
     ".": "./src/index.js",
-    "./*": "./src/"
+    "./*": "./src/*.js"
   },
   "repository": {
     "type": "git",
