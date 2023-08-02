@@ -1,77 +1,80 @@
-import { showMessage } from './index.js'
-
 export default class PrismaHttp {
   #baseUrl
 
   constructor(baseUrl) {
+    if (baseUrl.endsWith('/')) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
     this.#baseUrl = baseUrl
   }
 
-  request(method, url, body, success, error) {
-    const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      try {
-        if (this.readyState == 4) {
-          let resp = JSON.parse(this.response || "null");
-          if (!resp) resp = this.response;
-          if (this.status == 200) {
-            success(resp);
-          } else if (this.status == 400) {
-            error(resp.message || resp || "Bad Request", this.status);
-          } else if (this.status == 401) {
-            error("Unauthorized", this.status);
-          } else if (this.status == 403) {
-            error("Forbidden", this.status);
-          } else if (this.status == 404) {
-            error("Not Found", this.status);
-          } else if (this.status == 500) {
-            error("Internal server error", this.status);
-          } else {
-            error("Undefined error", this.status);
-          }
-        }
-      } catch (err) {
-        error(err.message, 0);
-      }
-    }
-    xhttp.open(method, this.#baseUrl + url, true);
-    let jwtoken = localStorage.getItem("autentication");
-    if (jwtoken) {
-      try {
-        jwtoken = JSON.parse(jwtoken);
-        if (jwtoken && jwtoken.access_token)
-          xhttp.setRequestHeader("Authorization", "Bearer " + jwtoken.access_token);
-      } catch (err) {}
-    }
-    xhttp.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
-    /*** fallbacks for IE and older browsers: ***/
-    //xhttp.setRequestHeader("Expires", "Tue, 01 Jan 1980 1:00:00 GMT");
-    //xhttp.setRequestHeader("Pragma", "no-cache");
-    xhttp.setRequestHeader("Content-type", "application/json");
+  #tryParseResponse(req) {
     try {
-      if (!body) xhttp.send();
-      else xhttp.send(JSON.stringify(body));
+      let resp = '';
+      if (req.response) {
+        resp = JSON.parse(req.response);
+      }
+      return { error: false, resp: resp.message || resp };
     } catch (err) {
-      error(err.message, 0);
+      return { error: true, resp: err.message };
     }
   }
 
-  #onError(data, status) {
-    console.error(`${status} ${data}`);
-    if (data.message) showMessage(data.message);
-    else showMessage(`${status} ${data}`);
+  #trySetAuthorization(req) {
+    try {
+      let jwtoken = localStorage.getItem("authentication");
+      jwtoken = JSON.parse(jwtoken);
+      if (jwtoken && jwtoken.access_token)
+        req.setRequestHeader("Authorization", "Bearer " + jwtoken.access_token);
+    } catch { }
   }
 
-  post(url, body, successCallback) {
-    this.request("POST", url, body, successCallback, this.#onError);
+  request(method, url, body) {
+    return new Promise((resolve, reject) => {
+      const req = new XMLHttpRequest();
+      req.onload = () => {
+        const { error, resp } = this.#tryParseResponse(req);
+        if (error) {
+          reject(new Error(resp));
+        } else if (req.status == 200) {
+          resolve(resp);
+        } else if (req.status == 400) {
+          reject(new Error(resp || `${req.status}: Bad Request`));
+        } else {
+          reject(new Error(`${req.status}: ${req.statusText}`));
+        }
+      }
+
+      req.onerror = () => {
+          reject(new Error('Network error occurred'));
+      }
+
+      if (this.#baseUrl) {
+        url = `${this.#baseUrl}/${url}`;
+      }
+
+      req.open(method, url);
+      req.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
+      req.setRequestHeader("Content-type", "application/json");
+      this.#trySetAuthorization(req);
+      if (body) {
+        req.send(JSON.stringify(body));
+      } else {
+        req.send();
+      }
+    });
   }
-  put(url, body, successCallback) {
-    this.request("PUT", url, body, successCallback, this.#onError);
+
+  post(url, body) {
+    return this.request("POST", url, body);
   }
-  get(url, successCallback) {
-    this.request("GET", url, null, successCallback, this.#onError);
+  put(url, body) {
+    return this.request("PUT", url, body);
   }
-  delete(url, successCallback) {
-    this.request("DELETE", url, null, successCallback, this.#onError);
+  get(url) {
+    return this.request("GET", url, null);
+  }
+  delete(url) {
+    return this.request("DELETE", url, null);
   }
 }

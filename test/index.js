@@ -41,18 +41,18 @@ table.setRows([{
 function readSelected() {
   const container = document.getElementById('container')
   const children = [...container.children]
-  for(const child of children) {
+  for (const child of children) {
     child.remove()
   }
-  
-  for(const item of table.getSelectedRows()) {
+
+  for (const item of table.getSelectedRows()) {
     const div = document.createElement('div')
     div.innerText = JSON.stringify(item)
     container.appendChild(div)
   }
 }
 
-window.filter = function() {
+window.filter = function () {
   const search = document.getElementById('filter').value;
   table.filter(search);
 }
@@ -72,7 +72,7 @@ function validate() {
   return originalForm.errors.length == 0;
 }
 
-window.saveOriginal = function() {
+window.saveOriginal = function () {
   if (!validate()) return originalForm.showErrors();
   console.log('POST', {
     name: document.getElementById('name').value,
@@ -88,7 +88,7 @@ function cpf(value) {
   return value == '271.326.330-15' ? null : 'Invalid CPF'
 }
 
-const [_,f] = document.forms
+const [_, f] = document.forms
 const newForm = new Form(f, {
   name: {
     initialValue: '',
@@ -100,18 +100,32 @@ const newForm = new Form(f, {
   }
 })
 
-window.saveNew = function() {
+window.saveNew = function () {
   if (newForm.valid) {
     console.log('POST ', newForm.value);
   }
 }
 
-const http = new Http('https://www.mobilidadec3.com.br/api/');
-localStorage.setItem('autentication', JSON.stringify({
-  token_type: "Bearer",
-  access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMiLCJ1c2VybmFtZSI6IjE1LjQ4OS43ODIvMDAwMS00MSIsInJvbGUiOiJjb21wYW55IiwibmJmIjoxNjg4NTk4NzU4LCJleHAiOjE2ODg2MDExNTgsImlhdCI6MTY4ODU5ODc1OH0.nMsz7oYDgPbR9KlVM2DiQl6thFvixCEDltDasWQkxNo",
-  refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMiLCJ1c2VybmFtZSI6IjE1LjQ4OS43ODIvMDAwMS00MSIsInJvbGUiOiJjb21wYW55IiwibmJmIjoxNjg4NTk4NzU4LCJleHAiOjE2ODg2Mjc1NTgsImlhdCI6MTY4ODU5ODc1OH0.vbbseOJ73Ahr_wj7rrozC31uUdIHEXcqU1qZjjMgG6U"
-}))
-http.get('vehicles/3', (data) => console.log('GET vehicles:', data))
+async function testHttp() {
+  try {
+    const http = new Http('http://localhost:1080/api/');
+    try {
+      const data = await http.get('vehicles/3');
+      console.log(data);
+    } catch (err) {
+      console.error(err);
+    }
+    let data = await http.post('account/login', {
+      username: "15.489.782/0001-41",
+      password: "1234"
+    });
+    localStorage.setItem('authentication', JSON.stringify(data))
+    data = await http.get('vehicles/3');
+    console.log(data);
+  } catch (err) {
+    console.error(err);
+  }
+}
+testHttp();
 
 showMessage('Testando show message', '', () => alert('testado'))

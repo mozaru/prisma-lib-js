@@ -1,11 +1,14 @@
 {
+  "type": "module",
   "scripts": {
-    "serve": "vite serve"
+    "start": "vite serve",
+    "test": "jasmine --config=jasmine.json"
   },
   "dependencies": {
     "prisma-js": ".."
   },
   "devDependencies": {
+    "jasmine": "^5.1.0",
     "vite": "latest"
   }
 }
