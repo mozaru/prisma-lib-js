@@ -1,8 +1,10 @@
+import { BadRequestError, HttpError, JsonError, NetworkError } from "./error.js";
+
 export default class PrismaHttp {
   #baseUrl
 
   constructor(baseUrl) {
-    if (baseUrl.endsWith('/')) {
+    if (baseUrl && baseUrl.endsWith('/')) {
       baseUrl = baseUrl.slice(0, -1);
     }
     this.#baseUrl = baseUrl
@@ -14,53 +16,51 @@ export default class PrismaHttp {
       if (req.response) {
         resp = JSON.parse(req.response);
       }
-      return { error: false, resp: resp.message || resp };
+      return { error: null, response: resp.message || resp };
     } catch (err) {
-      return { error: true, resp: err.message };
+      return { error: new JsonError(err, req.response), response: null };
     }
   }
 
-  #trySetAuthorization(req) {
-    try {
-      let jwtoken = localStorage.getItem("authentication");
-      jwtoken = JSON.parse(jwtoken);
-      if (jwtoken && jwtoken.access_token)
-        req.setRequestHeader("Authorization", "Bearer " + jwtoken.access_token);
-    } catch { }
+  #setAuthorization(req) {
+    let jwtoken = localStorage.getItem("authentication");
+    jwtoken = JSON.parse(jwtoken);
+    if (jwtoken && jwtoken.access_token)
+      req.setRequestHeader("Authorization", "Bearer " + jwtoken.access_token);
   }
 
   request(method, url, body) {
     return new Promise((resolve, reject) => {
-      const req = new XMLHttpRequest();
-      req.onload = () => {
-        const { error, resp } = this.#tryParseResponse(req);
+      const request = new XMLHttpRequest();
+      request.onload = () => {
+        const { error, response } = this.#tryParseResponse(request);
         if (error) {
-          reject(new Error(resp));
-        } else if (req.status == 200) {
-          resolve(resp);
-        } else if (req.status == 400) {
-          reject(new Error(resp || `${req.status}: Bad Request`));
+          reject(error);
+        } else if (request.status == 200) {
+          resolve(response);
+        } else if (request.status == 400) {
+          reject(new BadRequestError(response));
         } else {
-          reject(new Error(`${req.status}: ${req.statusText}`));
+          reject(new HttpError(request.status, request.statusText));
         }
       }
 
-      req.onerror = () => {
-          reject(new Error('Network error occurred'));
+      request.onerror = () => {
+        reject(new NetworkError());
       }
 
       if (this.#baseUrl) {
         url = `${this.#baseUrl}/${url}`;
       }
 
-      req.open(method, url);
-      req.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
-      req.setRequestHeader("Content-type", "application/json");
-      this.#trySetAuthorization(req);
+      request.open(method, url);
+      request.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
+      request.setRequestHeader("Content-type", "application/json");
+      this.#setAuthorization(request);
       if (body) {
-        req.send(JSON.stringify(body));
+        request.send(JSON.stringify(body));
       } else {
-        req.send();
+        request.send();
       }
     });
   }

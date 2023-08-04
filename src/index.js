@@ -1,8 +1,14 @@
 import PrismaAlert from "./alert.js";
 
 export let showMessage = async function (message, buttonText, callback) {
-  const alert = new PrismaAlert(buttonText);
-  await alert.showAsync(message);
+  const alert = new PrismaAlert();
+  await alert.showAsync(message, buttonText);
+  if (callback) callback();
+}
+
+export let showError = async function(error, buttonText, callback) {
+  const alert = new PrismaAlert('error');
+  await alert.showAsync(error.message, buttonText);
   if (callback) callback();
 }
 

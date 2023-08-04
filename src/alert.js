@@ -2,7 +2,7 @@ export default class PrismaAlert {
   #backdrop;
   #close;
 
-  constructor() {
+  constructor(customClass) {
     const html = `<div class="modal">
         <div class="content">
         </div>
@@ -14,6 +14,9 @@ export default class PrismaAlert {
     this.#backdrop = document.createElement('div');
     this.#backdrop.style.display = 'none';
     this.#backdrop.classList.add('backdrop');
+    if (customClass) {
+      this.#backdrop.classList.add(customClass);
+    }
     this.#backdrop.insertAdjacentHTML('afterbegin', html);
 
     const body = document.querySelector('body');
