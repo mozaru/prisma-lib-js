@@ -3,7 +3,7 @@ export default class PrismaTable {
   #tbody;
   #columns;
   #operations;
-  #filterContent = null;
+  #filterContent = "";
   #values = [];
   #lastIndexColSort = -1;
   #lastDirectionSort = false;
@@ -69,7 +69,8 @@ export default class PrismaTable {
   }
 
   #clearRows() {
-    for (const row of this.#tbody.rows) {
+    const rows = [...this.#tbody.rows];
+    for (const row of rows) {
       row.remove();
     }
   }
@@ -161,21 +162,19 @@ export default class PrismaTable {
           cell.appendChild(input);
           input.type = 'checkbox'
           input.addEventListener('change', (e) => {
-            if (e.isTrusted) {
-              const inputs = [...this.#tbody.querySelectorAll('tr:not([style*="display: none"]) input')];
-              const inputAll = this.#table.tHead.querySelector('input');
-              if (inputs.every(i => i.checked == e.target.checked)) {
-                inputAll.checked = e.target.checked;
-              } else {
-                inputAll.checked = false;
-              }
-              if (col.onchange && typeof col.onchange == 'function') {
-                col.onchange({
-                  scope: 'single',
-                  checked: e.target.checked,
-                  value: [obj]
-                });
-              }
+            const inputs = [...this.#tbody.querySelectorAll('tr:not([style*="display: none"]) input')];
+            const inputAll = this.#table.tHead.querySelector('input');
+            if (inputs.every(i => i.checked)) {
+              inputAll.checked = true;
+            } else {
+              inputAll.checked = false;
+            }
+            if (col.onchange && typeof col.onchange == 'function') {
+              col.onchange({
+                scope: 'single',
+                checked: e.target.checked,
+                value: [obj]
+              });
             }
           });
         } else {
@@ -214,19 +213,21 @@ export default class PrismaTable {
   }
 
   filter(content) {
-    this.#filterContent = content.toLowerCase();
-    for (const row of this.#tbody.children) {
-      const input = row.querySelector('input[type="checkbox"]');
-      if (this.#passFilter(row.obj)) {
-        row.style = "display: ;";
-      } else {
-        row.style = "display: none;";
-        if (input && input.checked) {
-          input.checked = false;
+    if (typeof content == 'string') {
+      this.#filterContent = content.toLowerCase();
+      for (const row of this.#tbody.children) {
+        const input = row.querySelector('input[type="checkbox"]');
+        if (this.#passFilter(row.obj)) {
+          row.style = "display: ;";
+        } else {
+          row.style = "display: none;";
+          if (input && input.checked) {
+            input.checked = false;
+          }
         }
-      }
-      if (input) {
-        input.dispatchEvent(new Event('change'));
+        if (input) {
+          input.dispatchEvent(new Event('change'));
+        }
       }
     }
   }
