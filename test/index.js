@@ -68,8 +68,10 @@ function validate() {
   field = document.getElementById('cpf');
   if (!field.value) {
     originalForm.addError(field, "CPF is required");
+  } else if (field.value != '271.326.330-15') {
+    originalForm.addError(field, 'Invalid CPF');
   }
-  return originalForm.errors.length == 0;
+  return originalForm.valid;
 }
 
 window.saveOriginal = function () {
