@@ -37,5 +37,5 @@ export default class PrismaGeolocation {
     let dist = Math.sqrt(Math.pow(p1.lat - p2.lat, 2) + Math.pow(p1.lng - p2.lng, 2))
     dist = dist * 60;
     return dist * 1852;
-  }
+  };
 }
