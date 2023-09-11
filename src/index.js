@@ -1,4 +1,15 @@
 import PrismaAlert from "./alert.js";
+import { App as CapacitorApp } from '@capacitor/app';
+
+export let handleBackButon = function() {
+  CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+    if (!canGoBack) {
+      CapacitorApp.exitApp();
+    } else {
+      window.history.back();
+    }
+  });
+}
 
 export let showMessage = async function (message, buttonText, callback) {
   const alert = new PrismaAlert();
@@ -6,7 +17,7 @@ export let showMessage = async function (message, buttonText, callback) {
   if (callback) callback();
 }
 
-export let showError = async function(error, buttonText, callback) {
+export let showError = async function (error, buttonText, callback) {
   const alert = new PrismaAlert('error');
   await alert.showAsync(error.message, buttonText);
   if (callback) callback();

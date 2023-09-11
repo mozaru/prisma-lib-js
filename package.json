@@ -17,5 +17,9 @@
     "url": "https://github.com/mozaru/prisma-lib-js/issues"
   },
   "homepage": "https://github.com/mozaru/prisma-lib-js#readme",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "@capacitor/app": "latest",
+    "@capacitor/geolocation": "latest"
+  }
 }
