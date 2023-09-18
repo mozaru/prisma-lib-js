@@ -42,7 +42,7 @@ export default class PrismaAlert {
 
       this.#close = resolve;
       document.body.insertAdjacentElement('beforeend', this.#backdrop);
-      modal.classList.add('.visible');
+      modal.classList.add('visible');
     })
   }
 }
