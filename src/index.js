@@ -1,4 +1,5 @@
 import PrismaAlert from "./alert.js";
+import { BusinessError } from "./error.js";
 
 export let showMessage = async function (message, buttonText, callback) {
   const alert = new PrismaAlert();
@@ -6,8 +7,12 @@ export let showMessage = async function (message, buttonText, callback) {
   if (callback) callback();
 }
 
-export let showError = async function(error, buttonText, callback) {
-  const alert = new PrismaAlert('error');
+export let showError = async function (error, buttonText, callback) {
+  let customClass;
+  if (!(error instanceof BusinessError)) {
+    customClass = 'error';
+  }
+  const alert = new PrismaAlert(customClass);
   await alert.showAsync(error.message, buttonText);
   if (callback) callback();
 }
