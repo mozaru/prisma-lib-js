@@ -12,38 +12,37 @@ export default class PrismaAlert {
       </div>`;
     
     this.#backdrop = document.createElement('div');
-    this.#backdrop.style.display = 'none';
     this.#backdrop.classList.add('backdrop');
     if (customClass) {
       this.#backdrop.classList.add(customClass);
     }
     this.#backdrop.insertAdjacentHTML('afterbegin', html);
-
-    const body = document.querySelector('body');
-    body.insertAdjacentElement('beforeend', this.#backdrop);
     
-    const btn = this.#backdrop.querySelector('.modal .btn');
-    btn.addEventListener('click', () => {
-      this.#backdrop.remove();
-      if (this.#close) {
-        this.#close();
-        this.#close = null;
-      }
+    const modal = this.#backdrop.querySelector('.modal');
+    modal.querySelector('.btn').addEventListener('click', () => {
+      modal.classList.remove('visible');
+      setTimeout(() => {
+        this.#backdrop.remove();
+        if (this.#close) {
+          this.#close();
+          this.#close = null;
+        }
+      }, 200);
     });
   }
 
   showAsync(message, buttonText) {
     return new Promise((resolve) => {
-      const content = this.#backdrop.querySelector('.modal .content');
-      content.innerText = message;
+      const modal = this.#backdrop.querySelector('.modal');
+      modal.querySelector('.content').innerText = message;
 
-      const btn = this.#backdrop.querySelector('.modal .btn');
       if (buttonText) {
-        btn.innerText = buttonText;
+        modal.querySelector('.btn').innerText = buttonText;
       }
 
       this.#close = resolve;
-      this.#backdrop.style.display = 'block';
+      document.body.insertAdjacentElement('beforeend', this.#backdrop);
+      modal.classList.add('.visible');
     })
   }
 }
