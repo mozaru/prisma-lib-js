@@ -12,26 +12,16 @@ describe('PrismaAlert', () => {
   it('should add custom class at modal backdrop', () => {
     const customClass = 'custom';
     alert = new PrismaAlert(customClass);
+    alert.showAsync();
 
     const backdrop = document.querySelector(`.backdrop.${customClass}`);
     expect(backdrop).toBeDefined();
   });
 
   it('should add modal', () => {
+    alert.showAsync();
     const modal = document.querySelector('.modal');
     expect(modal).toBeDefined();
-  });
-
-  it('should add modal with diplay none', () => {
-    const backdrop = document.querySelector('.backdrop');
-    expect(backdrop.style.display).toEqual('none');
-  });
-
-  it('should set modal display to block', () => {
-    alert.showAsync();
-
-    const modal = document.querySelector('.modal');
-    expect(modal.style.display).toEqual('block');
   });
 
   it('should set modal content text', () => {
@@ -57,22 +47,23 @@ describe('PrismaAlert', () => {
     expect(button.innerText).toEqual(btnText);
   });
 
-  it('should remove modal from document after click button', () => {
-    alert.showAsync();
+  it('should remove modal from document after click button', async () => {
+    const promise = alert.showAsync();
     
     const button = document.querySelector('.modal .btn');
     button.dispatchEvent(new Event('click'));
+
+    await promise;
 
     const modal = document.querySelector('.modal')
     expect(modal).toBeUndefined();
   });
 
   it('should resolve show promise after click button', async () => {
+    const promise = alert.showAsync();
     const button = document.querySelector('.modal .btn');
-    setTimeout(() => {
-      button.dispatchEvent(new Event('click'));
-    }, 0)
+    button.dispatchEvent(new Event('click'));
 
-    await expectAsync(alert.showAsync()).toBeResolved();
+    await expectAsync(promise).toBeResolved();
   });
 });

@@ -1,5 +1,6 @@
 import PrismaAlert from "./alert.js";
 import { App as CapacitorApp } from '@capacitor/app';
+import { BusinessError } from "./error.js";
 
 export let handleBackButon = function() {
   CapacitorApp.addListener('backButton', ({ canGoBack }) => {
@@ -18,7 +19,11 @@ export let showMessage = async function (message, buttonText, callback) {
 }
 
 export let showError = async function (error, buttonText, callback) {
-  const alert = new PrismaAlert('error');
+  let customClass;
+  if (!(error instanceof BusinessError)) {
+    customClass = 'error';
+  }
+  const alert = new PrismaAlert(customClass);
   await alert.showAsync(error.message, buttonText);
   if (callback) callback();
 }
