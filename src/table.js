@@ -192,6 +192,7 @@ export default class PrismaTable {
     for (const col of this.#operations) {
       const cell = row.insertCell();
       const btn = document.createElement("button");
+      btn.type = 'button';
       cell.appendChild(btn);
       btn.classList = "tool-btn " + col.Class;
       btn.title = col.Label;
