@@ -130,7 +130,7 @@ export default class PrismaTable {
   }
 
   #formatCell(col, obj) {
-    const type = col.Type.toLowerCase();
+    const type = (col.Type || '').toLowerCase();
     switch (type) {
       case 'currency':
         return this.#formatCurrency(obj[col.Field], col.Symbol);
