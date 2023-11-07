@@ -9,25 +9,22 @@ export default class PrismaGeolocation {
     timeout: 30 * 1000,
     enableHighAccuracy: true
   };
-  currentPosition() {
+  async currentPosition() {
     if (this.#lastPosition) {
-      return Promise.resolve(this.#lastPosition);
+      return this.#lastPosition;
     }
-    return new Promise((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(resolve, reject, this.#positionOptions);
-    });
+    return await Geolocation.getCurrentPosition(this.#positionOptions);
   }
-  startWatch(callback) {
-    if (navigator.geolocation) {
-      this.#watchId = navigator.geolocation.watchPosition((position) => {
+  async startWatch(callback) {
+    this.#watchId = await Geolocation.watchPosition(this.#positionOptions,
+    (position, err) => {
+      if (err) {
+        showMessage(`Code: ${err.code}\nError: ${err.message}`);
+      } else if (position && typeof callback === 'function') {
         this.#lastPosition = position;
         callback(position);
-      }, () => {
-        showMessage("Error: The geolocation service failed.");
-      }, this.#positionOptions);
-    } else {
-      showMessage("Error: Your browser doesn't support geolocation.");
-    }
+      }
+    });
   }
   async stopWatch() {
     if (this.#watchId) {
@@ -40,5 +37,5 @@ export default class PrismaGeolocation {
     let dist = Math.sqrt(Math.pow(p1.lat - p2.lat, 2) + Math.pow(p1.lng - p2.lng, 2))
     dist = dist * 60;
     return dist * 1852;
-  };
+  }
 }
