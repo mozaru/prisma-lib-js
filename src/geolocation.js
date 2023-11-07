@@ -3,24 +3,37 @@ import { Geolocation } from '@capacitor/geolocation';
 
 export default class PrismaGeolocation {
   #watchId = null;
-  async startWatch(callback) {
-    this.#watchId = await Geolocation.watchPosition({
-      maximumAge: 0,
-      timeout: 30 * 1000,
-      enableHighAccuracy: true
-    },
-    (position, err) => {
-      if (err) {
-        showMessage(`Code: ${err.code}\nError: ${err.message}`);
-      } else if (position && typeof callback === 'function') {
-        callback(position);
-      }
+  #lastPosition = null;
+  #positionOptions = {
+    maximumAge: 0,
+    timeout: 30 * 1000,
+    enableHighAccuracy: true
+  };
+  currentPosition() {
+    if (this.#lastPosition) {
+      return Promise.resolve(this.#lastPosition);
+    }
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, this.#positionOptions);
     });
+  }
+  startWatch(callback) {
+    if (navigator.geolocation) {
+      this.#watchId = navigator.geolocation.watchPosition((position) => {
+        this.#lastPosition = position;
+        callback(position);
+      }, () => {
+        showMessage("Error: The geolocation service failed.");
+      }, this.#positionOptions);
+    } else {
+      showMessage("Error: Your browser doesn't support geolocation.");
+    }
   }
   async stopWatch() {
     if (this.#watchId) {
       await Geolocation.clearWatch({id: this.#watchId});
       this.#watchId = null;
+      this.#lastPosition = null;
     }
   }
   distanceInMeters (p1, p2) {
