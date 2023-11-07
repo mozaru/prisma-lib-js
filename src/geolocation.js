@@ -11,7 +11,7 @@ export default class PrismaGeolocation {
     },
     (position, err) => {
       if (err) {
-        showMessage(`Error: ${err}`);
+        showMessage(`Code: ${err.code}\nError: ${err.message}`);
       } else if (position && typeof callback === 'function') {
         callback(position);
       }
