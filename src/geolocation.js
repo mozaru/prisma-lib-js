@@ -26,6 +26,18 @@ export default class PrismaGeolocation {
       }
     });
   }
+  startWatch(callback) {
+    if (navigator.geolocation) {
+      this.#watchId = navigator.geolocation.watchPosition((position) => {
+        this.#lastPosition = position;
+        callback(position);
+      }, () => {
+        showMessage("Error: The geolocation service failed.");
+      }, this.#positionOptions);
+    } else {
+      showMessage("Error: Your browser doesn't support geolocation.");
+    }
+  }
   async stopWatch() {
     if (this.#watchId) {
       await Geolocation.clearWatch({id: this.#watchId});
