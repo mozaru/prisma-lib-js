@@ -17,6 +17,22 @@ export class JsonError extends BusinessError {
 
 export class HttpError extends BusinessError {
   constructor(status, statusText) {
+    if (!statusText) {
+      switch(status) {
+        case 401:
+          statusText = 'Unauthorazed';
+          break;
+        case 403:
+          statusText = 'Forbidden';
+          break;
+        case 500:
+          statusText = 'Internal Server Error';
+        break;
+        default:
+          statusText = 'Undefined Error';
+          break;
+      }
+    }
     super(`${status}: ${statusText}`);
     this.status = status;
   }
