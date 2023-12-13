@@ -4,7 +4,10 @@
   "version": "1.0.2",
   "exports": {
     ".": "./src/index.js",
-    "./*": "./src/*.js"
+    "./*": "./src/*.js",
+    "./alert": "./src/modal/alert.js",
+    "./prompt": "./src/modal/prompt.js",
+    "./error": "./src/utils/error.js"
   },
   "repository": {
     "type": "git",

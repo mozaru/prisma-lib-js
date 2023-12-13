@@ -1,5 +1,6 @@
-import PrismaAlert from "./alert.js";
-import { BusinessError } from "./error.js";
+import PrismaAlert from "./modal/alert.js";
+import PrismaPrompt from "./modal/prompt.js";
+import { BusinessError } from "./utils/error.js";
 
 export let showMessage = async function (message, buttonText, callback) {
   const alert = new PrismaAlert();
@@ -15,6 +16,16 @@ export let showError = async function (error, buttonText, callback) {
   const alert = new PrismaAlert(customClass);
   await alert.showAsync(error.message, buttonText);
   if (callback) callback();
+}
+
+export let prompt =  async function(message, resolveText, rejectText, callback) {
+  const prompt = new PrismaPrompt();
+	const result = await prompt.showAsync(message, resolveText, rejectText);
+  if (callback) {
+    callback(result);
+  } else {
+    return result;
+  }
 }
 
 export let getParamFromUrl = function (paramName) {

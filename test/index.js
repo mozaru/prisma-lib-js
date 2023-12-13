@@ -1,7 +1,7 @@
 import Table from 'prisma-js/table';
 import Form from 'prisma-js/form';
 import Http from 'prisma-js/http';
-import { showMessage } from 'prisma-js';
+import { showMessage, prompt } from 'prisma-js';
 
 let table = new Table(
   document.getElementById("tbl"),
@@ -130,4 +130,5 @@ async function testHttp() {
 }
 testHttp();
 
-showMessage('Testando show message', '', () => alert('testado'))
+const message = await prompt("Me de uma mensagem", "Confirmar");
+showMessage(message || 'Testando show message', '', () => alert('testado'));
