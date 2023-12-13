@@ -1,28 +1,26 @@
-export default class PrismaAlert {
-  #backdrop;
+import PrismaModal from "./modal.js";
+
+export default class PrismaAlert extends PrismaModal {
   #close;
+  #protected;
 
   constructor(customClass) {
-    const html = `<div class="modal">
+    const template = `<div class="modal">
         <div class="content">
         </div>
         <div class="footer">
           <button class="btn">Ok</button>
         </div>
       </div>`;
-    
-    this.#backdrop = document.createElement('div');
-    this.#backdrop.classList.add('backdrop');
-    if (customClass) {
-      this.#backdrop.classList.add(customClass);
-    }
-    this.#backdrop.insertAdjacentHTML('afterbegin', html);
-    
-    const modal = this.#backdrop.querySelector('.modal');
+    const shared = {}
+    super(customClass, template, shared);
+    this.#protected = shared;
+
+    const modal = this.#protected.querySelector('.modal');
     modal.querySelector('.btn').addEventListener('click', () => {
       modal.classList.remove('visible');
       setTimeout(() => {
-        this.#backdrop.remove();
+        this.#protected.close();
         if (this.#close) {
           this.#close();
           this.#close = null;
@@ -33,7 +31,7 @@ export default class PrismaAlert {
 
   showAsync(message, buttonText) {
     return new Promise((resolve) => {
-      const modal = this.#backdrop.querySelector('.modal');
+      const modal = this.#protected.querySelector('.modal');
       modal.querySelector('.content').innerText = message;
 
       if (buttonText) {
@@ -41,10 +39,10 @@ export default class PrismaAlert {
       }
 
       this.#close = resolve;
-      document.body.insertAdjacentElement('beforeend', this.#backdrop);
+      this.#protected.show();
       setTimeout(() => {
         modal.classList.add('visible');
-      }, 0);
+      }, 1);
     })
   }
 }

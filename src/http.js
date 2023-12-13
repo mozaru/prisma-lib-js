@@ -1,4 +1,4 @@
-import { BadRequestError, HttpError, JsonError, NetworkError } from "./error.js";
+import { BadRequestError, HttpError, JsonError, NetworkError } from "./utils/error.js";
 
 export default class PrismaHttp {
   #baseUrl
