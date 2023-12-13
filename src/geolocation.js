@@ -26,18 +26,6 @@ export default class PrismaGeolocation {
       }
     });
   }
-  startWatch(callback) {
-    if (navigator.geolocation) {
-      this.#watchId = navigator.geolocation.watchPosition((position) => {
-        this.#lastPosition = position;
-        callback(position);
-      }, () => {
-        showMessage("Error: The geolocation service failed.");
-      }, this.#positionOptions);
-    } else {
-      showMessage("Error: Your browser doesn't support geolocation.");
-    }
-  }
   async stopWatch() {
     if (this.#watchId) {
       await Geolocation.clearWatch({id: this.#watchId});
@@ -49,5 +37,5 @@ export default class PrismaGeolocation {
     let dist = Math.sqrt(Math.pow(p1.lat - p2.lat, 2) + Math.pow(p1.lng - p2.lng, 2))
     dist = dist * 60;
     return dist * 1852;
-  };
+  }
 }
