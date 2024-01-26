@@ -42,7 +42,7 @@ export default class PrismaPrompt extends PrismaModal {
     }, 200);
   }
 
-  showAsync(message, resolveText, rejectText) {
+  showAsync(message, value, resolveText, rejectText) {
     return new Promise((resolve) => {
       const modal = this.#protected.querySelector('.modal');
       modal.querySelector('label').innerText = message;
@@ -53,6 +53,10 @@ export default class PrismaPrompt extends PrismaModal {
 
       if (rejectText) {
         modal.querySelector('.btn:not(.btnDefault)').innerText = rejectText;
+      }
+
+      if (value) {
+        modal.querySelector('input').value = value
       }
 
       this.#resolve = resolve;
