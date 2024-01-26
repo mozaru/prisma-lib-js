@@ -18,14 +18,13 @@ export let showError = async function (error, buttonText, callback) {
   if (callback) callback();
 }
 
-export let prompt =  async function(message, resolveText, rejectText, callback) {
+export let prompt =  async function(message, value, resolveText, rejectText, callback) {
   const prompt = new PrismaPrompt();
-	const result = await prompt.showAsync(message, resolveText, rejectText);
+	const result = await prompt.showAsync(message, value, resolveText, rejectText);
   if (callback) {
     callback(result);
-  } else {
-    return result;
   }
+  return result;
 }
 
 export let getParamFromUrl = function (paramName) {
