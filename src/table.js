@@ -35,7 +35,7 @@ export default class PrismaTable {
               const input = row.querySelector('input');
               input.checked = e.target.checked;
             }
-            if (col.onchange && typeof col.onchange == 'function') {
+            if (typeof col.onchange == 'function') {
               col.onchange({
                 scope: 'all',
                 checked: e.target.checked,
@@ -61,9 +61,12 @@ export default class PrismaTable {
         });
       }
     });
-    operations.forEach(() => {
-      const cell = row.insertCell();
-      cell.innerHTML = "";
+    operations.forEach((op) => {
+      if (!op.Visible || (typeof op.Visible == 'function' && op.Visible())) {
+        op.visible = true;
+        const cell = row.insertCell();
+        cell.innerHTML = "";
+      }
     });
     this.#tbody = table.tBodies[0] || table.createTBody();
   }
@@ -104,7 +107,7 @@ export default class PrismaTable {
   #formatReal(value, digits) {
     if (!value)
       value = 0;
-    return parseFloat(parseFloat(value).toFixed(digits)).toLocaleString();
+    return parseFloat(value).toFixed(digits);
   }
 
   #formatInt(value) {
@@ -113,19 +116,27 @@ export default class PrismaTable {
     return parseInt(value).toString();
   }
 
-  #formatDate(value) {
-    if (!value)
+  #formatDate(value, naMessage) {
+    if (!value) {
+      if (typeof naMessage == "string") {
+        return naMessage;
+      }
       value = new Date("");
-    else if (typeof value == 'string')
+    } else if (typeof value == 'string') {
       value = new Date(value);
+    }
     return value.toLocaleDateString()
   }
 
-  #formatDateTime(value) {
-    if (!value)
+  #formatDateTime(value, naMessage) {
+    if (!value) {
+      if (typeof naMessage == "string") {
+        return naMessage;
+      }
       value = new Date("");
-    else if (typeof value == 'string')
+    } else if (typeof value == 'string') {
       value = new Date(value);
+    }
     return value.toLocaleString()
   }
 
@@ -139,9 +150,9 @@ export default class PrismaTable {
       case 'real':
         return this.#formatReal(obj[col.Field], col.Digits);
       case 'date':
-        return this.#formatDate(obj[col.Field]);
+        return this.#formatDate(obj[col.Field], col.NA);
       case 'datetime':
-        return this.#formatDateTime(obj[col.Field]);
+        return this.#formatDateTime(obj[col.Field], col.NA);
       default:
         return obj[col.Field].toLocaleString();
     }
@@ -169,7 +180,7 @@ export default class PrismaTable {
             } else {
               inputAll.checked = false;
             }
-            if (col.onchange && typeof col.onchange == 'function') {
+            if (typeof col.onchange == 'function') {
               col.onchange({
                 scope: 'single',
                 checked: e.target.checked,
@@ -190,16 +201,20 @@ export default class PrismaTable {
       if (col.Align) cell.style.textAlign = col.Align;
     }
     for (const col of this.#operations) {
-      const cell = row.insertCell();
-      const btn = document.createElement("button");
-      btn.type = 'button';
-      cell.appendChild(btn);
-      btn.classList = "tool-btn " + col.Class;
-      btn.title = col.Label;
-      btn.addEventListener('click', () => {
-        if (col.Action && typeof col.Action == 'function')
-          col.Action(obj);
-      });
+      if (col.visible) {
+        const cell = row.insertCell();
+        const btn = document.createElement("button");
+        if (typeof col.Disable == 'function')
+          btn.disabled = col.Disable(obj);
+        btn.type = 'button';
+        cell.appendChild(btn);
+        btn.classList = "tool-btn " + col.Class;
+        btn.title = col.Label;
+        btn.addEventListener('click', () => {
+          if (typeof col.Action == 'function')
+            col.Action(obj);
+        });
+      }
     }
   }
 
