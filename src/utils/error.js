@@ -18,7 +18,7 @@ export class JsonError extends BusinessError {
 export class HttpError extends BusinessError {
   constructor(status, statusText) {
     if (!statusText) {
-      switch(status) {
+      switch (status) {
         case 401:
           statusText = 'Unauthorazed';
           break;
@@ -27,7 +27,7 @@ export class HttpError extends BusinessError {
           break;
         case 500:
           statusText = 'Internal Server Error';
-        break;
+          break;
         default:
           statusText = 'Undefined Error';
           break;
@@ -39,10 +39,12 @@ export class HttpError extends BusinessError {
 }
 
 export class BadRequestError extends HttpError {
-  constructor(message) {
+  constructor(response) {
     super(400, 'Bad Request');
-    if (message) {
-      this.message = message;
+    if (typeof response == 'string') {
+      this.message = response;
+    } else if (typeof response == 'object') {
+      console.error(JSON.stringify(response));
     }
   }
 }
