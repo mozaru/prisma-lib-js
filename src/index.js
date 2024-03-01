@@ -1,17 +1,15 @@
 import PrismaAlert from "./modal/alert.js";
 import PrismaPrompt from "./modal/prompt.js";
 import { BusinessError } from "./utils/error.js";
-import { App as CapacitorApp } from '@capacitor/app';
+import { App } from '@capacitor/app';
 
-export let handleBackButon = function() {
-  CapacitorApp.addListener('backButton', ({ canGoBack }) => {
-    if (!canGoBack) {
-      CapacitorApp.exitApp();
-    } else {
-      window.history.back();
-    }
-  });
-}
+App.addListener('backButton', ({ canGoBack }) => {
+  if (!canGoBack) {
+    App.exitApp();
+  } else {
+    window.history.back();
+  }
+});
 
 export let showMessage = async function (message, buttonText, callback) {
   const alert = new PrismaAlert();
