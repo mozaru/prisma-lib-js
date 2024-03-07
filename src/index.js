@@ -11,6 +11,10 @@ App.addListener('backButton', ({ canGoBack }) => {
   }
 });
 
+App.addListener("appUrlOpen", ({ url }) => {
+  location.assign(url.split('.app/').pop());
+});
+
 export let showMessage = async function (message, buttonText, callback) {
   const alert = new PrismaAlert();
   await alert.showAsync(message, buttonText);
