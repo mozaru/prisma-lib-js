@@ -1,6 +1,6 @@
 import PrismaAlert from "./modal/alert.js";
 import PrismaPrompt from "./modal/prompt.js";
-import { BusinessError } from "./utils/error.js";
+import { BusinessError, UnauthorizedError } from "./utils/error.js";
 import { App } from '@capacitor/app';
 
 App.addListener('backButton', ({ canGoBack }) => {
@@ -29,6 +29,9 @@ export let showError = async function (error, buttonText, callback) {
   const alert = new PrismaAlert(customClass);
   await alert.showAsync(error.message, buttonText);
   if (callback) callback();
+  if (error instanceof UnauthorizedError && error.authPage) {
+    location.assign(error.authPage);
+  }
 }
 
 export let prompt =  async function(message, value, resolveText, rejectText, callback) {

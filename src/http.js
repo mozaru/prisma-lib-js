@@ -1,13 +1,21 @@
-import { BadRequestError, HttpError, JsonError, NetworkError } from "./utils/error.js";
+import { BadRequestError, HttpError, JsonError, NetworkError, UnauthorizedError } from "./utils/error.js";
 
 export default class PrismaHttp {
   #baseUrl
+  #authKey
+  #refreshEndpoint
+  #tokenType
+  #authPage
 
-  constructor(baseUrl) {
+  constructor(baseUrl, {authKey, refreshEndpoint, tokenType,  authPage} = {}) {
     if (baseUrl && baseUrl.endsWith('/')) {
       baseUrl = baseUrl.slice(0, -1);
     }
     this.#baseUrl = baseUrl
+    this.#authKey = authKey || "authentication";
+    this.#refreshEndpoint = refreshEndpoint || "api/account/refresh";
+    this.#tokenType = tokenType || "Bearer";
+    this.#authPage = authPage;
   }
 
   #tryParseResponse(req) {
@@ -23,13 +31,20 @@ export default class PrismaHttp {
   }
 
   #setAuthorization(req) {
-    let jwtoken = localStorage.getItem("authentication");
+    let jwtoken = localStorage.getItem(this.#authKey);
     jwtoken = JSON.parse(jwtoken);
-    if (jwtoken && jwtoken.access_token)
-      req.setRequestHeader("Authorization", "Bearer " + jwtoken.access_token);
+    if (jwtoken && jwtoken.access_token) {
+      req.setRequestHeader("Authorization", `${this.#tokenType} ${jwtoken.access_token}`);
+    }
   }
 
-  request(method, url, body) {
+  async #refreshAuthorization() {
+    const { refresh_token } = JSON.parse(localStorage.getItem(this.#authKey));
+    const auth = await this.post(this.#refreshEndpoint, { refresh_token });
+    localStorage.setItem(this.#authKey, JSON.stringify(auth));
+  }
+
+  #request(method, url, body, retrying = false) {
     return new Promise((resolve, reject) => {
       const request = new XMLHttpRequest();
       request.onload = () => {
@@ -40,6 +55,15 @@ export default class PrismaHttp {
           resolve(response);
         } else if (request.status == 400) {
           reject(new BadRequestError(response));
+        } else if (request.status == 401) {
+          if (retrying || url.includes(this.#refreshEndpoint)) {
+            reject(new UnauthorizedError(this.#authPage));
+          } else {
+            this.#refreshAuthorization()
+            .then(() => this.#request(method, url, body, true))
+            .then((res) => resolve(res))
+            .catch((err) => reject(err));
+          }
         } else {
           reject(new HttpError(request.status, request.statusText));
         }
@@ -49,7 +73,7 @@ export default class PrismaHttp {
         reject(new NetworkError());
       }
 
-      if (this.#baseUrl) {
+      if (this.#baseUrl && !url.includes(this.#baseUrl)) {
         url = `${this.#baseUrl}/${url}`;
       }
 
@@ -63,6 +87,10 @@ export default class PrismaHttp {
         request.send();
       }
     });
+  }
+
+  request(method, url, body) {
+    return this.#request(method, url, body);
   }
 
   post(url, body) {

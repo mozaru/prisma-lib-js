@@ -20,7 +20,7 @@ export class HttpError extends BusinessError {
     if (!statusText) {
       switch (status) {
         case 401:
-          statusText = 'Unauthorazed';
+          statusText = 'Unauthorized';
           break;
         case 403:
           statusText = 'Forbidden';
@@ -46,6 +46,13 @@ export class BadRequestError extends HttpError {
     } else if (typeof response == 'object') {
       console.error(JSON.stringify(response));
     }
+  }
+}
+
+export class UnauthorizedError extends HttpError {
+  constructor(authPage) {
+    super(401, 'Unauthorized');
+    this.authPage = authPage;
   }
 }
 
