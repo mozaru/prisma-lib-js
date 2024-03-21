@@ -13,8 +13,8 @@ export default class PrismaHttp {
     }
     this.#baseUrl = baseUrl
     this.#authKey = authKey || "authentication";
-    this.#refreshEndpoint = refreshEndpoint || "api/account/refresh";
     this.#tokenType = tokenType || "Bearer";
+    this.#refreshEndpoint = refreshEndpoint;
     this.#authPage = authPage;
   }
 
@@ -56,7 +56,7 @@ export default class PrismaHttp {
         } else if (request.status == 400) {
           reject(new BadRequestError(response));
         } else if (request.status == 401) {
-          if (retrying || url.includes(this.#refreshEndpoint)) {
+          if (!this.#refreshEndpoint || retrying || url.includes(this.#refreshEndpoint)) {
             reject(new UnauthorizedError(this.#authPage));
           } else {
             this.#refreshAuthorization()
