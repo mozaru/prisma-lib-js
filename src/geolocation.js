@@ -6,7 +6,7 @@ export default class PrismaGeolocation {
   #lastPosition = null;
   #positionOptions = {
     maximumAge: 0,
-    timeout: 30 * 1000,
+    timeout: 10 * 1000,
     enableHighAccuracy: true
   };
   async currentPosition() {
