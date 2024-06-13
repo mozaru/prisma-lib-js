@@ -1,4 +1,4 @@
-export default class PrismaForm {
+export default class {
   #form
   #settings
   errors = {}

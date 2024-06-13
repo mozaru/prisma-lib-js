@@ -1,5 +1,5 @@
 import PrismaForm from 'prisma-js/form';
-import { MockDocument } from './mock-dom.js';
+import { MockDocument } from '../mock-dom.js';
 
 const requiredMessage = 'This field is required';
 function require(value) {
