@@ -1,5 +1,5 @@
 import Table from 'prisma-js/table';
-import Form from 'prisma-js/form';
+import Form, { required, cpf, phone } from 'prisma-js/form';
 import Http from 'prisma-js/http';
 import { showMessage, prompt } from 'prisma-js';
 
@@ -68,8 +68,14 @@ function validate() {
   field = document.getElementById('cpf');
   if (!field.value) {
     originalForm.addError(field, "CPF is required");
-  } else if (field.value != '271.326.330-15') {
+  } else if (cpf()(field.value) != null) {
     originalForm.addError(field, 'Invalid CPF');
+  }
+  field = document.getElementById('phone');
+  if (!field.value) {
+    originalForm.addError(field, "Phone is required");
+  } else if (phone()(field.value) != null) {
+    originalForm.addError(field, 'Invalid phone');
   }
   return originalForm.valid;
 }
@@ -82,23 +88,19 @@ window.saveOriginal = function () {
   });
 }
 
-function required(value) {
-  return value ? null : 'Required'
-}
-
-function cpf(value) {
-  return value == '271.326.330-15' ? null : 'Invalid CPF'
-}
-
 const [_, f] = document.forms
 const newForm = new Form(f, {
   name: {
     initialValue: '',
-    validators: [required]
+    validators: [required('Nome é obrigatório')]
   },
   cpf: {
     initialValue: '271.326.330-15',
-    validators: [required, cpf]
+    validators: [required(), cpf('CPF inválido')]
+  },
+  phone: {
+    initialValue: '',
+    validators: [required(), phone('Telefone inválido')]
   }
 })
 
@@ -112,17 +114,17 @@ async function testHttp() {
   try {
     const http = new Http('http://localhost:1080/api/');
     try {
-      const data = await http.get('vehicles/3');
+      const data = await http.get('vehicle/list/1');
       console.log(data);
     } catch (err) {
       console.error(err);
     }
     let data = await http.post('account/login', {
       username: "15.489.782/0001-41",
-      password: "1234"
+      password: "123"
     });
     localStorage.setItem('authentication', JSON.stringify(data))
-    data = await http.get('vehicles/3');
+    data = await http.get('vehicle/list/1');
     console.log(data);
   } catch (err) {
     console.error(err);
@@ -130,5 +132,8 @@ async function testHttp() {
 }
 testHttp();
 
-const message = await prompt("Me de uma mensagem", "Confirmar");
-showMessage(message || 'Testando show message', '', () => alert('testado'));
+async function testModal() {
+  const message = await prompt("Me de uma mensagem", null, "Confirmar");
+  showMessage(message || 'Testando show message', '', () => alert('testado'));
+}
+testModal();
