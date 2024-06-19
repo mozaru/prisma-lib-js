@@ -3,6 +3,12 @@ import Form from 'prisma-js/form';
 import Http from 'prisma-js/http';
 import { showMessage, prompt } from 'prisma-js';
 
+import { Geolocation } from '@capacitor/geolocation';
+
+Geolocation.getCurrentPosition().then(pos => {
+  console.log('Minha posição', pos);
+});
+
 let table = new Table(
   document.getElementById("tbl"),
   [
@@ -130,5 +136,6 @@ async function testHttp() {
 }
 testHttp();
 
-const message = await prompt("Me de uma mensagem", "Confirmar");
-showMessage(message || 'Testando show message', '', () => alert('testado'));
+prompt("Me de uma mensagem", "Confirmar").then((message) => {
+  showMessage(message || 'Testando show message', '', () => alert('testado'));
+});
