@@ -1,7 +1,6 @@
 import PrismaModal from "./modal.js";
 
 export default class PrismaPrompt extends PrismaModal {
-  #protected;
   #resolve;
 
   constructor(customClass) {
@@ -18,11 +17,9 @@ export default class PrismaPrompt extends PrismaModal {
           <button class="btn">Cancel</button>
         </div>
       </div>`;
-    const shared = {};
-    super(customClass, template, shared);
-    this.#protected = shared;
+    super(customClass, template);
 
-    const modal = this.#protected.querySelector('.modal');
+    const modal = this.querySelector('.modal');
     modal.querySelector('.btn.btnDefault').addEventListener('click', () => {
       this.#close(modal, modal.querySelector('.modal input').value);
     });
@@ -34,7 +31,7 @@ export default class PrismaPrompt extends PrismaModal {
   #close(modal, result) {
     modal.classList.remove('visible');
     setTimeout(() => {
-      this.#protected.close();
+      this.close();
       if (this.#resolve) {
         this.#resolve(result);
         this.#resolve = null;
@@ -44,7 +41,7 @@ export default class PrismaPrompt extends PrismaModal {
 
   showAsync(message, value, resolveText, rejectText) {
     return new Promise((resolve) => {
-      const modal = this.#protected.querySelector('.modal');
+      const modal = this.querySelector('.modal');
       modal.querySelector('label').innerText = message;
 
       if (resolveText) {
@@ -60,7 +57,7 @@ export default class PrismaPrompt extends PrismaModal {
       }
 
       this.#resolve = resolve;
-      this.#protected.show();
+      this.show();
       setTimeout(() => {
         modal.classList.add('visible');
       }, 1);

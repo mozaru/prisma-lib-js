@@ -1,29 +1,28 @@
 import Abstract from "../utils/abstract.js";
 
 export default class PrismaModal extends Abstract {
-  #protected;
+  #backdrop;
 
-  constructor(customClass, template, shared) {
+  constructor(customClass, template) {
     super(PrismaModal, ['showAsync']);
-    this.#protected = shared || {};
 
-    this.#protected.backdrop = document.createElement('div');
-    this.#protected.backdrop.classList.add('backdrop');
+    this.#backdrop = document.createElement('div');
+    this.#backdrop.classList.add('backdrop');
     if (customClass) {
-      this.#protected.backdrop.classList.add(customClass);
+      this.#backdrop.classList.add(customClass);
     }
-    this.#protected.backdrop.insertAdjacentHTML('afterbegin', template);
+    this.#backdrop.insertAdjacentHTML('afterbegin', template);
+  }
 
-    this.#protected.querySelector = (selector) => {
-      return this.#protected.backdrop.querySelector(selector);
-    }
+  querySelector(selector) {
+    return this.#backdrop.querySelector(selector);
+  }
 
-    this.#protected.close = () => {
-      this.#protected.backdrop.remove()
-    }
+  close() {
+    this.#backdrop.remove()
+  }
 
-    this.#protected.show = () => {
-      document.body.insertAdjacentElement('beforeend', this.#protected.backdrop);
-    }
+  show() {
+    document.body.insertAdjacentElement('beforeend', this.#backdrop);
   }
 }

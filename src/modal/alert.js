@@ -2,7 +2,6 @@ import PrismaModal from "./modal.js";
 
 export default class PrismaAlert extends PrismaModal {
   #close;
-  #protected;
 
   constructor(customClass) {
     const template = `<div class="modal">
@@ -12,15 +11,13 @@ export default class PrismaAlert extends PrismaModal {
           <button class="btn">Ok</button>
         </div>
       </div>`;
-    const shared = {}
-    super(customClass, template, shared);
-    this.#protected = shared;
+    super(customClass, template);
 
-    const modal = this.#protected.querySelector('.modal');
+    const modal = this.querySelector('.modal');
     modal.querySelector('.btn').addEventListener('click', () => {
       modal.classList.remove('visible');
       setTimeout(() => {
-        this.#protected.close();
+        this.close();
         if (this.#close) {
           this.#close();
           this.#close = null;
@@ -31,7 +28,7 @@ export default class PrismaAlert extends PrismaModal {
 
   showAsync(message, buttonText) {
     return new Promise((resolve) => {
-      const modal = this.#protected.querySelector('.modal');
+      const modal = this.querySelector('.modal');
       modal.querySelector('.content').innerText = message;
 
       if (buttonText) {
@@ -39,7 +36,7 @@ export default class PrismaAlert extends PrismaModal {
       }
 
       this.#close = resolve;
-      this.#protected.show();
+      this.show();
       setTimeout(() => {
         modal.classList.add('visible');
       }, 1);
