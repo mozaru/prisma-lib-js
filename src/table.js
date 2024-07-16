@@ -1,3 +1,10 @@
+import { 
+  formatInt, 
+  formatReal, 
+  formatCurrency,
+  formatDate, 
+  formatDateTime 
+} from "./utils/format";
 export default class PrismaTable {
   #table;
   #tbody;
@@ -100,59 +107,20 @@ export default class PrismaTable {
         return;
       }
   }
-  #formatCurrency(value, symbol) {
-    return `${symbol} ${formatReal(value, 2)}`;
-  }
-
-  #formatReal(value, digits) {
-    if (!value)
-      value = 0;
-    return parseFloat(value).toFixed(digits);
-  }
-
-  #formatInt(value) {
-    if (!value)
-      value = 0;
-    return parseInt(value).toString();
-  }
-
-  #formatDate(value, naMessage) {
-    if (!value) {
-      if (typeof naMessage == "string") {
-        return naMessage;
-      }
-      value = new Date("");
-    } else if (typeof value == 'string') {
-      value = new Date(value);
-    }
-    return value.toLocaleDateString()
-  }
-
-  #formatDateTime(value, naMessage) {
-    if (!value) {
-      if (typeof naMessage == "string") {
-        return naMessage;
-      }
-      value = new Date("");
-    } else if (typeof value == 'string') {
-      value = new Date(value);
-    }
-    return value.toLocaleString()
-  }
 
   #formatCell(col, obj) {
     const type = (col.Type || '').toLowerCase();
     switch (type) {
       case 'currency':
-        return this.#formatCurrency(obj[col.Field], col.Symbol);
+        return formatCurrency(obj[col.Field], col.Symbol);
       case 'int':
-        return this.#formatInt(obj[col.Field]);
+        return formatInt(obj[col.Field]);
       case 'real':
-        return this.#formatReal(obj[col.Field], col.Digits);
+        return formatReal(obj[col.Field], col.Digits);
       case 'date':
-        return this.#formatDate(obj[col.Field], col.NA);
+        return formatDate(obj[col.Field], col.NA);
       case 'datetime':
-        return this.#formatDateTime(obj[col.Field], col.NA);
+        return formatDateTime(obj[col.Field], col.NA);
       default:
         return obj[col.Field].toLocaleString();
     }

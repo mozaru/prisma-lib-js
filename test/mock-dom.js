@@ -1,10 +1,58 @@
+class MockSubtreeEvent extends Event {
+  constructor(changes) {
+    super('subtreeChange');
+    this.changes = changes;
+  }
+}
+
+class MockMutationObserver {
+  constructor(callback) {
+    this.callback = callback;
+  }
+
+  observe(target, options = {}) {
+    target.addEventListener('subtreeChange', event => {
+      this.callback([event.changes]);
+    });
+    target.addEventListener('classListChange', () => {
+      this.callback();
+    })
+  }
+
+  disconnect() {
+
+  }
+}
+
+class MockHtmlCollection extends Array {
+  constructor(callback) {
+    super();
+    this.callback = callback;
+  }
+
+  push(...items) {
+    super.push(...items);
+    this.callback({
+      addedNodes: items,
+      removedNodes: []
+    });
+  }
+
+  splice(start, deleteCount, ...items) {
+    this.callback({
+      addedNodes: items,
+      removedNodes: super.splice(start, deleteCount, ...items)
+    });
+  }
+}
+
 class MockNode {
   parentElement;
   children;
   #listeners;
 
   constructor() {
-    this.children = [];
+    this.children = new MockHtmlCollection(changes => this.dispatchEvent(new MockSubtreeEvent(changes)));
     this.#listeners = [];
   }
 
@@ -44,7 +92,7 @@ class MockElement extends MockNode {
   constructor(tagName, attrs) {
     super();
     this.tagName = tagName;
-    this.classList = new MockTokenList();
+    this.classList = new MockTokenList(() => { this.dispatchEvent(new Event('classListChange')) });
     this.style = new MockCSSStyle();
 
     if (attrs) {
@@ -80,36 +128,39 @@ class MockElement extends MockNode {
   }
 
   insertAdjacentHTML(position, text) {
-    const element = this.#parseHtml(text);
-    this.insertAdjacentElement(position, element);
+    const tree = this.#parseHtml(text);
+    this.insertAdjacentElement(position, tree);
   }
 
-  insertAdjacentElement(position, element) {
-    switch (position) {
+  insertAdjacentElement(where, element) {
+    if (!Array.isArray(element)) {
+      element = [element];
+    }
+    switch (where) {
       case 'beforebegin':
         let index = this.parentElement.children.indexOf(this);
-        this.parentElement.children.splice(index, 0, element);
-        element.parentElement = this.parentElement;
+        this.parentElement.children.splice(index, 0, ...element);
+        element.forEach(e => e.parentElement = this.parentElement);
         break;
       case 'afterbegin':
-        this.children.splice(0, 0, element);
-        element.parentElement = this;
+        this.children.splice(0, 0, ...element);
+        element.forEach(e => e.parentElement = this);
         break;
       case 'beforeend':
-        this.children.push(element);
-        element.parentElement = this;
+        this.children.push(...element);
+        element.forEach(e => e.parentElement = this);
         break;
       case 'afterend':
         index = this.parentElement.children.indexOf(this);
-        this.parentElement.children.splice(index + 1, 0, element);
-        element.parentElement = this.parentElement;
+        this.parentElement.children.splice(index + 1, 0, ...element);
+        element.forEach(e => e.parentElement = this.parentElement);
         break;
     }
   }
 
   #parseHtml(text) {
     let currentParent;
-    let root;
+    let tree = [];
 
     const tagRegex = /<[^>]+>|[^<>\s]+/g;
     const textSegments = text.match(tagRegex);
@@ -118,10 +169,11 @@ class MockElement extends MockNode {
       if (segment.startsWith('</')) {
         currentParent = currentParent.parentElement;
       } else if (segment.startsWith('<')) {
-        const attributes = segment.substring(1).split(' ');
-        const tagName = attributes.shift();
+        const tagName = segment.substring(1).split(' ').shift();
         const element = new MockElement(tagName);
 
+        const attrRegex =  /\w*=("|')([\w-;:]*\s?)*\1/g;
+        const attributes = segment.match(attrRegex) || [];
         for (const attr of attributes) {
           const equalIndex = attr.indexOf('=');
           const attrName = attr.substring(0, equalIndex);
@@ -137,7 +189,7 @@ class MockElement extends MockNode {
 
         if (!currentParent) {
           currentParent = element;
-          root = element;
+          tree.push(element);
         } else {
           currentParent.append(element);
           currentParent = element;
@@ -147,15 +199,22 @@ class MockElement extends MockNode {
       }
     }
 
-    return root;
+    return tree;
   }
 
   #selectChildren(selectors, attr, list) {
     selectors = selectors.split(' ');
-    const selector = selectors[0].split('.');
+    const selector = selectors[0].match(/(?!\.):?[\w-]+/g);
     let i = 0;
     let match = true;
-    while (i < selector.length && (match = attr.includes(selector[i++])));
+    let not = false;
+    while (i < selector.length && match) {
+      if (selector[i] == ':not') {
+        not = true;
+        i++;
+      }
+      match = not ^ attr.includes(selector[i++]);
+    }
 
     if (match) {
       if (selectors.length == 1) {
@@ -223,6 +282,11 @@ class MockForm extends MockElement {
 }
 
 class MockTokenList extends Array {
+  constructor(eventCallback) {
+    super();
+    this.eventCallback = eventCallback;
+  }
+
   get value() {
     if (!this.length) {
       return '';
@@ -237,6 +301,9 @@ class MockTokenList extends Array {
         this.push(token);
       }
     }
+    if (this.eventCallback) {
+      this.eventCallback();
+    }
   }
 
   remove(...tokens) {
@@ -245,6 +312,9 @@ class MockTokenList extends Array {
       if ((index = this.indexOf(token)) != -1) {
         this.splice(index, 1);
       }
+    }
+    if (this.eventCallback) {
+      this.eventCallback();
     }
   }
 }
@@ -255,9 +325,10 @@ class MockCSSStyle {
   }
 }
 
-export class MockDocument extends MockNode {
-  constructor() {
+class MockDocument extends MockNode {
+  constructor(window) {
     super();
+    this.defaultView = window;
     this.body = new MockElement('body')
     this.append(this.body);
   }
@@ -283,5 +354,53 @@ export class MockDocument extends MockNode {
       selected = [...selected, ...this.children[i++].querySelectorAll(selectors)];
     }
     return selected;
+  }
+}
+
+class MockCSSStyleDeclaration {
+  constructor() {
+    this['transition-duration'] = '0s';
+    this['animation-duration'] = '0s';
+  }
+
+  get transitionDuration() {
+    return this['transition-duration'];
+  }
+
+  get animationDuration() {
+    return this['animation-duration'];
+  }
+
+  getPropertyValue(property) {
+    return this[property] || '';
+  }
+
+  setProperty(property, value, priority = '') {
+    this[property] = value;
+  }
+}
+
+export class MockWindow {
+  #styles;
+  constructor() {
+    this.document = new MockDocument(this);
+    this.#styles = {};
+    this.#setGlobals();
+  }
+  
+  #setGlobals() {
+    global.getComputedStyle = this.getComputedStyle.bind(this);
+    global.document = this.document;
+    global.MutationObserver = MockMutationObserver;
+  }
+
+  getComputedStyle(elt, pseudoElt = '') {
+    if (!this.#styles[elt]) {
+      this.#styles[elt] = {};
+    }
+    if (!this.#styles[elt][pseudoElt]) {
+      this.#styles[elt][pseudoElt] = new MockCSSStyleDeclaration();
+    }
+    return this.#styles[elt][pseudoElt];
   }
 }

@@ -14,6 +14,43 @@
     .error>input {
       border-color: brown;
     }
+    @keyframes ltr {
+      from {left: 0;}
+      to {left: -25%;}
+    }
+    @keyframes rtl {
+      from {left: -25%;}
+      to {left: 0;}
+    }
+    .backdrop {
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+    .modal {
+      transition: top 200ms linear;
+      position: fixed;
+      background-color: white;
+      border: 1px solid black;
+      padding: 16px;
+      margin: 0 50%;
+      width: 50%;
+      left: 0%;      
+      top: -10%;
+      animation-name: rtl;
+      animation-duration: 400ms;
+    }
+    .modal.visible {
+      top: 10%;
+      left: -25%;
+      animation-name: ltr;
+      animation-duration: 400ms;
+    }
   </style>
 </head>
 
@@ -39,6 +76,10 @@
           <labe for="cpf">CPF</labe>
           <input type="text" name="cpf" id="cpf">
         </div>
+        <div>
+          <labe for="phone">Phone</labe>
+          <input type="text" name="phone" id="phone">
+        </div>
         <input type="button" value="submit" onclick="saveOriginal()" />
       </form>
     </fieldset>
@@ -53,11 +94,17 @@
           <labe for="cpf">CPF</labe>
           <input type="text" name="cpf">
         </div>
+        <div>
+          <labe for="phone">Phone</labe>
+          <input type="text" name="phone">
+        </div>
         <input type="button" value="submit" onclick="saveNew()" />
       </form>
     </fieldset>
   </div>
 
+  <input type="button" value="Test Modal" onclick="testModal()" />
+  <input type="button" value="Test http" onclick="testHttp()" />
 </body>
 
 </html>
