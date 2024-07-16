@@ -25,6 +25,9 @@ export class HttpError extends BusinessError {
         case 403:
           statusText = 'Forbidden';
           break;
+        case 404:
+          statusText = 'Not Found';
+          break;
         case 500:
           statusText = 'Internal Server Error';
           break;

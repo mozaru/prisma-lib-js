@@ -110,9 +110,9 @@ window.saveNew = function () {
   }
 }
 
-async function testHttp() {
+window.testHttp = async function() {
   try {
-    const http = new Http('http://localhost:1080/api/');
+    const http = new Http('http://localhost:8080/api/');
     try {
       const data = await http.get('vehicle/list/1');
       console.log(data);
@@ -130,10 +130,8 @@ async function testHttp() {
     console.error(err);
   }
 }
-testHttp();
 
-async function testModal() {
-  const message = await prompt("Me de uma mensagem", null, "Confirmar");
-  showMessage(message || 'Testando show message', '', () => alert('testado'));
+window.testModal = async function() {
+  const valor = await prompt("Me de um valor!!", null, "Confirmar");
+  showMessage(valor || 'Testando show message', '', () => alert('Tudo certo.'));
 }
-testModal();

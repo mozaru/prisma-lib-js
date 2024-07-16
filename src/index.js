@@ -4,7 +4,7 @@ import { BusinessError, UnauthorizedError } from "./utils/error.js";
 
 export let showMessage = async function (message, buttonText, callback) {
   const alert = new PrismaAlert();
-  await alert.showAsync(message, buttonText);
+  await alert.show(message, buttonText);
   if (callback) callback();
 }
 
@@ -14,16 +14,16 @@ export let showError = async function (error, buttonText, callback) {
     customClass = 'error';
   }
   const alert = new PrismaAlert(customClass);
-  await alert.showAsync(error.message, buttonText);
+  await alert.show(error.message, buttonText);
   if (callback) callback();
   if (error instanceof UnauthorizedError && error.authPage) {
     location.assign(error.authPage);
   }
 }
 
-export let prompt =  async function(message, value, resolveText, rejectText, callback) {
+export let prompt = async function (message, value, resolveText, rejectText, callback) {
   const prompt = new PrismaPrompt();
-	const result = await prompt.showAsync(message, value, resolveText, rejectText);
+  const result = await prompt.show(message, value, resolveText, rejectText);
   if (callback) {
     callback(result);
   }
