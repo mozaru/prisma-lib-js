@@ -1,4 +1,5 @@
 import PrismaAlert from "./modal/alert.js";
+import PrismaConfirm from "./modal/confirm.js"
 import PrismaPrompt from "./modal/prompt.js";
 import { BusinessError, UnauthorizedError } from "./utils/error.js";
 
@@ -19,6 +20,15 @@ export let showError = async function (error, buttonText, callback) {
   if (error instanceof UnauthorizedError && error.authPage) {
     location.assign(error.authPage);
   }
+}
+
+export let confirm = async function (message, resolveText, rejectText, callback) {
+  const prompt = new PrismaConfirm();
+  const result = await prompt.show(message, resolveText, rejectText);
+  if (callback) {
+    callback(result);
+  }
+  return result;
 }
 
 export let prompt = async function (message, value, resolveText, rejectText, callback) {
