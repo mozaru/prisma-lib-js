@@ -1,7 +1,7 @@
 import Table from 'prisma-js/table';
 import Form, { required, cpf, phone } from 'prisma-js/form';
 import Http from 'prisma-js/http';
-import { showMessage, prompt } from 'prisma-js';
+import { showMessage, prompt, confirm } from 'prisma-js';
 
 import { Geolocation } from '@capacitor/geolocation';
 
@@ -138,6 +138,8 @@ window.testHttp = async function() {
 }
 
 window.testModal = async function() {
-  const valor = await prompt("Me de um valor!!", null, "Confirmar");
-  showMessage(valor || 'Testando show message', '', () => alert('Tudo certo.'));
+  if (await confirm("Realmente deseja testar as modais?")) {
+    const valor = await prompt("Me de um valor!!", null, "Confirmar");
+    showMessage(valor || 'Testando show message', '', () => alert('Tudo certo.'));
+  }
 }

@@ -7,6 +7,7 @@
     "./*": "./src/*.js",
     "./alert": "./src/modal/alert.js",
     "./prompt": "./src/modal/prompt.js",
+    "./confirm": "./src/modal/confirm.js",
     "./error": "./src/utils/error.js",
     "./form": "./src/form/index.js"
   },
