@@ -1,5 +1,5 @@
 import { MockWindow } from "../mock-dom.js";
-import PrismaAlert from "prisma-js/alert";
+import { PrismaAlert } from "prisma-js/modal";
 
 describe('PrismaAlert', () => {
   let alert;

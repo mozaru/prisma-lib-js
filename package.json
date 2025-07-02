@@ -5,9 +5,7 @@
   "exports": {
     ".": "./src/index.js",
     "./*": "./src/*.js",
-    "./alert": "./src/modal/alert.js",
-    "./prompt": "./src/modal/prompt.js",
-    "./confirm": "./src/modal/confirm.js",
+    "./modal": "./src/modal/index.js",
     "./error": "./src/utils/error.js",
     "./form": "./src/form/index.js"
   },

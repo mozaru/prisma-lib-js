@@ -6,8 +6,8 @@ export default class PrismaPrompt extends PrismaModal {
     const template = `
         <div class="content">
           <div class="prisma-field">
-            <label></label>
-            <input type="text">
+            <label for="prompt"></label>
+            <input type="text" id="prompt">
           </div>
         </div>
         <div class="footer">
