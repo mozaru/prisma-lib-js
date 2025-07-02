@@ -1,5 +1,5 @@
 import { MockWindow } from "../mock-dom.js";
-import PrismaConfirm from "prisma-js/confirm";
+import { PrismaConfirm } from "prisma-js/modal";
 
 describe('PrismaConfirm', () => {
   let prompt;

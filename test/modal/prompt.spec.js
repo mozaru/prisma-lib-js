@@ -1,5 +1,5 @@
 import { MockWindow } from "../mock-dom.js";
-import PrismaPrompt from "prisma-js/prompt";
+import { PrismaPrompt } from "prisma-js/modal";
 
 describe('PrismaPrompt', () => {
   let prompt;
